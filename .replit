@@ -37,3 +37,7 @@ externalPort = 8000
 [[ports]]
 localPort = 37179
 externalPort = 80
+
+[deployment]
+deploymentTarget = "vm"
+run = ["python", "main.py", "--input", "websocket", "--host", "0.0.0.0", "--port", "8000"]
