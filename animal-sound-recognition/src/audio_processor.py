@@ -1,5 +1,4 @@
 import numpy as np
-import sounddevice as sd
 import librosa
 import yaml
 import logging
@@ -8,6 +7,15 @@ from typing import Optional, Tuple, Union
 import queue
 import threading
 import time
+
+# Optional import of sounddevice - handle gracefully if not available
+try:
+    import sounddevice as sd
+    SOUNDDEVICE_AVAILABLE = True
+except (ImportError, OSError) as e:
+    sd = None
+    SOUNDDEVICE_AVAILABLE = False
+    print(f"Warning: SoundDevice not available: {e}. Audio input from microphone will be disabled.")
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +56,10 @@ class AudioProcessor:
     
     async def start_stream(self, callback=None, device_index=None):
         """Start audio stream from microphone."""
+        if not SOUNDDEVICE_AVAILABLE:
+            logger.error("Cannot start audio stream: SoundDevice is not available")
+            raise RuntimeError("SoundDevice is not available. Cannot capture microphone audio.")
+        
         import asyncio
         loop = asyncio.get_running_loop()
         

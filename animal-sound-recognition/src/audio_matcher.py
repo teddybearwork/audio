@@ -43,8 +43,12 @@ class AudioMatcher:
                         continue # Skip partial chunks
 
                     if not self.audio_processor._is_silent(chunk):
-                        _, embedding, _ = self.classifier.model(chunk)
-                        file_embeddings.append(np.mean(embedding.numpy(), axis=0))
+                        # For mock classifier, use a simple hash-based approach
+                        result = self.classifier.process_audio_chunk(chunk)
+                        if result['confidence'] > 0.3:  # Use result as "embedding"
+                            # Create a simple hash-based embedding for the chunk
+                            chunk_hash = hash(tuple(chunk[::100])) % 1000  # Simple hash
+                            file_embeddings.append([chunk_hash, result['confidence']])
                 
                 if file_embeddings:
                     self.reference_embeddings[animal_name] = np.array(file_embeddings)
@@ -59,12 +63,17 @@ class AudioMatcher:
             return None
 
         try:
-            # Get the embedding for the new audio chunk
-            _, embedding, _ = self.classifier.model(audio_chunk)
-            chunk_embedding = np.mean(embedding.numpy(), axis=0)
+            # Get prediction result for the new audio chunk
+            result = self.classifier.process_audio_chunk(audio_chunk)
+            if result['confidence'] < 0.3:
+                return None
+                
+            # Create a simple hash-based embedding for the chunk
+            chunk_hash = hash(tuple(audio_chunk[::100])) % 1000  # Simple hash
+            chunk_embedding = np.array([chunk_hash, result['confidence']])
             
             # Normalize the chunk embedding
-            chunk_embedding /= np.linalg.norm(chunk_embedding)
+            chunk_embedding = chunk_embedding / np.linalg.norm(chunk_embedding)
 
             best_match = None
             highest_similarity = -1

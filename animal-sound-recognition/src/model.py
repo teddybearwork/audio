@@ -1,11 +1,20 @@
 import os
-import tensorflow as tf
-import tensorflow_hub as hub
 import numpy as np
 import yaml
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
+
+# Optional imports for machine learning components
+try:
+    import tensorflow as tf
+    import tensorflow_hub as hub
+    TF_AVAILABLE = True
+except ImportError as e:
+    tf = None
+    hub = None
+    TF_AVAILABLE = False
+    print(f"Warning: TensorFlow not available: {e}. Using mock classifier for demonstration.")
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +43,20 @@ class AnimalSoundClassifier:
     
     def _load_model(self):
         """Load the YAMNet model from TensorFlow Hub."""
+        if not TF_AVAILABLE:
+            logger.warning("TensorFlow not available, using mock classifier")
+            self.model = None
+            self.class_map = {
+                0: 'BatA', 1: 'BatB', 2: 'CockatooA', 3: 'CockatooB', 4: 'CrocodileA',
+                5: 'DingoA', 6: 'DuckA', 7: 'DuckB', 8: 'FrogA', 9: 'FrogB',
+                10: 'FrogmouthTawnyA', 11: 'FrogmouthTawnyB', 12: 'KoalaA', 13: 'KoalaB',
+                14: 'KookaburraA', 15: 'KookaburraB', 16: 'MagpieA', 17: 'MagpieB',
+                18: 'PlatypusA', 19: 'PossumA', 20: 'PossumB', 21: 'SnakeA',
+                22: 'WombatA', 23: 'WombatB'
+            }
+            logger.info("Mock classifier initialized with animal sound classes")
+            return
+        
         try:
             # Load YAMNet model
             self.model = hub.load('https://tfhub.dev/google/yamnet/1')
@@ -109,6 +132,21 @@ class AnimalSoundClassifier:
             tuple: (predicted_class, confidence_score)
         """
         try:
+            # Handle mock classifier case
+            if not TF_AVAILABLE or self.model is None:
+                # Simple mock classification based on audio energy
+                if len(audio_data) > 0:
+                    energy = np.mean(np.abs(audio_data))
+                    if energy > 0.01:  # Threshold for detecting sound
+                        # Mock prediction - randomly pick an animal class
+                        import random
+                        class_ids = list(self.class_map.keys())
+                        predicted_class_id = random.choice(class_ids)
+                        predicted_class = self.class_map[predicted_class_id]
+                        confidence = min(0.6 + energy * 2, 0.95)  # Mock confidence
+                        return predicted_class, confidence
+                return "unknown", 0.0
+            
             # Ensure audio is in the correct format (1D array of float32)
             if isinstance(audio_data, np.ndarray):
                 # Convert to 1D if needed

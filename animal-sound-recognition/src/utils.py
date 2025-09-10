@@ -225,6 +225,9 @@ def get_available_microphones() -> List[Dict[str, Any]]:
                 })
         
         return input_devices
+    except (ImportError, OSError) as e:
+        logger.warning(f"SoundDevice not available, cannot list microphones: {e}")
+        return []
     except Exception as e:
         logger.error(f"Error getting microphone list: {e}")
         return []
