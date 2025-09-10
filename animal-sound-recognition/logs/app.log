@@ -1,0 +1,10 @@
+2025-09-10 18:55:56,625 - __main__ - INFO - Animal Sound Recognizer initialized
+2025-09-10 18:55:56,627 - __main__ - ERROR - Error loading model: No module named 'tensorflow'
+2025-09-10 18:55:56,628 - __main__ - ERROR - Error: No module named 'tensorflow'
+2025-09-10 18:55:56,628 - __main__ - ERROR - Detailed error:
+Traceback (most recent call last):
+  File "C:\Users\karth\Downloads\Ageay_srp_Sriram\animal-sound-recognition\src\main.py", line 142, in main
+    recognizer.load_model()
+  File "C:\Users\karth\Downloads\Ageay_srp_Sriram\animal-sound-recognition\src\main.py", line 38, in load_model
+    import tensorflow as tf
+ModuleNotFoundError: No module named 'tensorflow'

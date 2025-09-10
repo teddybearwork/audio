@@ -1,0 +1,47 @@
+# Audio configuration
+audio:
+  sample_rate: 16000  # Hz
+  channels: 1         # Mono audio
+  chunk_duration: 1.0  # Increased chunk duration for better detection
+  format: 'float32'   # Using float32 for better compatibility
+  device: null        # Use default audio device
+  silence_threshold: 0.005  # RMS threshold to consider a chunk as silent
+  min_silence_duration: 0.5  # Seconds of silence to mark the end of a sound event
+  sound_event_buffer: 0.2  # Seconds of padding to add before and after a sound event
+  frames_per_buffer: 2048  # Increased buffer size
+  input_device_index: None  # Will use default input device
+  latency: 'low'      # Prefer lower latency over stability
+  
+# Model configuration
+model:
+  input_shape: (96, 64, 1)  # Expected input shape (spectrogram)
+  num_classes: 24  # Number of animal/bird sound classes
+  confidence_threshold: 0.5  # Lowered threshold to detect more sounds
+  
+# WebSocket configuration
+websocket:
+  host: "0.0.0.0"
+  port: 8000
+  ping_interval: 30  # seconds
+  ping_timeout: 10  # seconds
+  max_size: 2**20  # 1MB max message size
+  
+# Logging configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: "logs/app.log"
+  max_size: 10485760  # 10MB
+  backup_count: 5
+  
+# Output configuration
+output:
+  directory: "output"
+  csv_file: "detections.csv"
+  log_interval: 10  # seconds between log writes
+  
+# Data augmentation
+augmentation:
+  noise_factor: 0.005
+  pitch_shift: 2  # semitones
+  time_stretch: 0.2  # 20% variation
+  volume_gain: 0.1  # 10% variation
