@@ -145,10 +145,14 @@ class AnimalSoundRecognizer:
                     await asyncio.sleep(0.1)
                     
             elif input_source == 'websocket':
-                # Start WebSocket server
+                # Update config with host and port if provided
                 host = kwargs.get('host', '0.0.0.0')
                 port = kwargs.get('port', 8000)
-                self.websocket_server.start(host=host, port=port)
+                self.websocket_server.host = host
+                self.websocket_server.port = port
+                
+                # Start WebSocket server
+                await self.websocket_server.start()
                 logger.info(f"WebSocket server started on {host}:{port}")
                 
                 # Keep the main thread alive
@@ -205,7 +209,12 @@ class AnimalSoundRecognizer:
             
         # Stop WebSocket server if running
         if hasattr(self, 'websocket_server'):
-            self.websocket_server.stop()
+            try:
+                import asyncio
+                asyncio.get_event_loop().run_until_complete(self.websocket_server.stop())
+            except RuntimeError:
+                # If no event loop is running, create a new one
+                asyncio.run(self.websocket_server.stop())
             
         # Save detections if logger exists and has a flush method
         if hasattr(self, 'detection_logger') and hasattr(self.detection_logger, 'flush'):

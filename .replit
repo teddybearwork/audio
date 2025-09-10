@@ -5,3 +5,35 @@ expertMode = true
 [nix]
 channel = "stable-25_05"
 packages = ["portaudio", "alsa-lib"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Animal Sound Recognition Server"
+
+[[workflows.workflow]]
+name = "Animal Sound Recognition Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd animal-sound-recognition && python main.py --input websocket --host 0.0.0.0 --port 8000"
+waitForPort = 8000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[ports]]
+localPort = 8000
+externalPort = 8000
+
+[[ports]]
+localPort = 37179
+externalPort = 80
